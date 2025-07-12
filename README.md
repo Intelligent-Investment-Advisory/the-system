@@ -1,84 +1,176 @@
-/*
- Navicat MySQL Data Transfer
-
- Source Server         : java
- Source Server Type    : MySQL
- Source Server Version : 80029
- Source Host           : localhost:3306
- Source Schema         : advisor
-
- Target Server Type    : MySQL
- Target Server Version : 80029
- File Encoding         : 65001
-
- Date: 03/07/2025 15:15:03
-*/
-
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
--- Table structure for backtest
+-- Table structure for a1_fof_config
 -- ----------------------------
-DROP TABLE IF EXISTS `backtest`;
-CREATE TABLE `backtest`  (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `backtest_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '回测代码',
-  `strategy_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '策略代码',
-  `strategy_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '策略名称',
-  `start_date` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '回测开始日期',
-  `end_date` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '回测结束日期',
-  `total_return` double NULL DEFAULT NULL COMMENT '总收益率',
-  `annual_return` double NULL DEFAULT NULL COMMENT '年化收益率',
-  `max_drawdown` double NULL DEFAULT NULL COMMENT '最大回撤',
-  `sharpe_ratio` double NULL DEFAULT NULL COMMENT '夏普比率',
-  `volatility` double NULL DEFAULT NULL COMMENT '波动率',
-  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '运行中' COMMENT '回测状态',
-  `creator` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '创建者',
-  `create_time` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '创建时间',
-  `update_time` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '更新时间',
+DROP TABLE IF EXISTS `a1_fof_config`;
+CREATE TABLE `a1_fof_config`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `portfolio_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '组合代码',
+  `fund_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '基金代码',
+  `fund_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '基金名称',
+  `weight` decimal(10, 4) NOT NULL COMMENT '权重',
+  `asset_class` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '资产类别',
+  `rebalance_frequency` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '再平衡频率',
+  `stop_loss` decimal(10, 4) NULL DEFAULT NULL COMMENT '止损线',
+  `take_profit` decimal(10, 4) NULL DEFAULT NULL COMMENT '止盈线',
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '活跃' COMMENT '状态：活跃、暂停',
+  `created_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+  `updated_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `backtest_code`(`backtest_code`) USING BTREE,
-  INDEX `idx_backtest_strategy`(`strategy_code`) USING BTREE,
-  INDEX `idx_backtest_status`(`status`) USING BTREE,
-  CONSTRAINT `backtest_ibfk_1` FOREIGN KEY (`strategy_code`) REFERENCES `strategy` (`strategy_code`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '策略回测表' ROW_FORMAT = Dynamic;
+  INDEX `idx_portfolio_code`(`portfolio_code`) USING BTREE,
+  INDEX `idx_fund_code`(`fund_code`) USING BTREE,
+  INDEX `idx_status`(`status`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'FOF组合配置表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of backtest
+-- Records of a1_fof_config
 -- ----------------------------
-INSERT INTO `backtest` VALUES (1, 'BT001', 'ST001', '价值投资策略', '2023-01-01', '2023-12-31', 18.5, 18.5, -8.2, 1.85, 0.12, '已完成', '张三', '2024-01-20 10:00:00', '2024-01-20 10:00:00');
-INSERT INTO `backtest` VALUES (2, 'BT002', 'ST002', '动量策略', '2023-01-01', '2023-12-31', 22.3, 22.3, -12.5, 1.78, 0.15, '已完成', '李四', '2024-01-20 11:00:00', '2024-01-20 11:00:00');
-INSERT INTO `backtest` VALUES (3, 'BT003', 'ST003', '多因子策略', '2023-01-01', '2023-12-31', 25.8, 25.8, -10.1, 2.12, 0.13, '已完成', '王五', '2024-01-20 12:00:00', '2024-01-20 12:00:00');
-INSERT INTO `backtest` VALUES (4, 'BT004', 'ST001', '价值投资策略', '2024-01-01', '2024-12-31', 5.2, 6.8, -3.5, 1.45, 0.08, '运行中', '张三', '2024-01-21 09:00:00', '2024-01-21 09:00:00');
-INSERT INTO `backtest` VALUES (5, 'BT005', 'ST005', '低波动策略', '2023-06-01', '2023-12-31', 12.1, 24.2, -5.8, 2.05, 0.09, '已完成', '李四', '2024-01-21 14:00:00', '2024-01-21 14:00:00');
 
 -- ----------------------------
--- Table structure for derived_factor
+-- Table structure for a1_fof_monitor
 -- ----------------------------
-DROP TABLE IF EXISTS `derived_factor`;
-CREATE TABLE `derived_factor`  (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `derived_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '衍生因子代码',
-  `derived_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '衍生因子名称',
-  `base_factors` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '基础因子（逗号分隔）',
-  `weights` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '权重（逗号分隔）',
-  `formula` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '计算公式',
-  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '描述',
-  `creator` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '创建者',
-  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '状态',
-  `create_time` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建时间',
-  `update_time` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新时间',
+DROP TABLE IF EXISTS `a1_fof_monitor`;
+CREATE TABLE `a1_fof_monitor`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `portfolio_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '组合代码',
+  `monitor_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '监控类型：风险监控、绩效监控、再平衡监控',
+  `monitor_date` date NOT NULL COMMENT '监控日期',
+  `total_return` decimal(10, 4) NULL DEFAULT NULL COMMENT '总收益率',
+  `annual_return` decimal(10, 4) NULL DEFAULT NULL COMMENT '年化收益率',
+  `max_drawdown` decimal(10, 4) NULL DEFAULT NULL COMMENT '最大回撤',
+  `sharpe_ratio` decimal(10, 4) NULL DEFAULT NULL COMMENT '夏普比率',
+  `volatility` decimal(10, 4) NULL DEFAULT NULL COMMENT '波动率',
+  `beta` decimal(10, 4) NULL DEFAULT NULL COMMENT '贝塔系数',
+  `alpha` decimal(10, 4) NULL DEFAULT NULL COMMENT '阿尔法系数',
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '正常' COMMENT '状态：正常、预警、异常',
+  `alert_message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '预警信息',
+  `created_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `derived_code`(`derived_code`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '衍生因子表' ROW_FORMAT = Dynamic;
+  INDEX `idx_portfolio_code`(`portfolio_code`) USING BTREE,
+  INDEX `idx_monitor_date`(`monitor_date`) USING BTREE,
+  INDEX `idx_status`(`status`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'FOF组合监控表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of derived_factor
+-- Records of a1_fof_monitor
 -- ----------------------------
-INSERT INTO `derived_factor` VALUES (1, 'DF001', '综合动量因子', 'F001,F005', '0.6,0.4', '0.6*动量因子+0.4*波动率因子', '结合动量和波动率的综合技术因子', 'admin', 'active', '2024-01-01 10:00:00', '2024-01-01 10:00:00');
-INSERT INTO `derived_factor` VALUES (2, 'DF002', '价值质量因子', 'F002,F003', '0.5,0.5', '0.5*价值因子+0.5*质量因子', '结合价值和质量的综合基本面因子', 'admin', 'active', '2024-01-01 10:00:00', '2024-01-01 10:00:00');
-INSERT INTO `derived_factor` VALUES (3, 'DF003', '多因子组合', 'F001,F002,F003,F004', '0.25,0.25,0.25,0.25', '0.25*(动量+价值+质量+规模)', '经典多因子模型组合', 'admin', 'pending', '2024-01-01 10:00:00', '2024-01-01 10:00:00');
-INSERT INTO `derived_factor` VALUES (4, 'F996', '996', 'F001', '0.6,0.4', '价格变化率计算', '基于价格动量的技术分析因子，用于捕捉价格趋势996', 'admin', 'pending', '2025-06-30 14:58:38', '2025-06-30 14:58:38');
 
+-- ----------------------------
+-- Table structure for a1_fof_portfolio
+-- ----------------------------
+DROP TABLE IF EXISTS `a1_fof_portfolio`;
+CREATE TABLE `a1_fof_portfolio`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `portfolio_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '组合代码',
+  `portfolio_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '组合名称',
+  `portfolio_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '组合类型：FOF',
+  `risk_level` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '风险等级：低风险、中风险、高风险',
+  `target_return` decimal(10, 4) NULL DEFAULT NULL COMMENT '目标收益率',
+  `max_drawdown` decimal(10, 4) NULL DEFAULT NULL COMMENT '最大回撤',
+  `strategy_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '策略代码',
+  `asset_allocation` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '资产配置JSON',
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '草稿' COMMENT '状态：草稿、活跃、暂停',
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '组合描述',
+  `created_by` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建人',
+  `created_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+  `updated_by` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
+  `updated_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `portfolio_code`(`portfolio_code`) USING BTREE,
+  INDEX `idx_portfolio_code`(`portfolio_code`) USING BTREE,
+  INDEX `idx_status`(`status`) USING BTREE,
+  INDEX `idx_created_time`(`created_time`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'FOF组合表' ROW_FORMAT = Dynamic;
 
+-- ----------------------------
+-- Records of a1_fof_portfolio
+-- ----------------------------
+INSERT INTO `a1_fof_portfolio` VALUES (2, '444', '444', 'FOF', '低风险', 44.0000, 44.0000, '444', '44', '草稿', '44', '44', '2025-07-06 20:01:28', NULL, '2025-07-06 20:01:28');
+
+-- ----------------------------
+-- Table structure for a2_index_config
+-- ----------------------------
+DROP TABLE IF EXISTS `a2_index_config`;
+CREATE TABLE `a2_index_config`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `portfolio_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '组合代码',
+  `fund_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '基金代码',
+  `fund_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '基金名称',
+  `weight` decimal(10, 4) NOT NULL COMMENT '权重',
+  `asset_class` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '资产类别',
+  `rebalance_frequency` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '再平衡频率',
+  `tracking_error_limit` decimal(10, 4) NULL DEFAULT NULL COMMENT '跟踪误差限制',
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '活跃' COMMENT '状态：活跃、暂停',
+  `created_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+  `updated_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_portfolio_code`(`portfolio_code`) USING BTREE,
+  INDEX `idx_fund_code`(`fund_code`) USING BTREE,
+  INDEX `idx_status`(`status`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '指数组合配置表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of a2_index_config
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for a2_index_monitor
+-- ----------------------------
+DROP TABLE IF EXISTS `a2_index_monitor`;
+CREATE TABLE `a2_index_monitor`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `portfolio_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '组合代码',
+  `monitor_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '监控类型：跟踪误差监控、绩效监控、再平衡监控',
+  `monitor_date` date NOT NULL COMMENT '监控日期',
+  `total_return` decimal(10, 4) NULL DEFAULT NULL COMMENT '总收益率',
+  `index_return` decimal(10, 4) NULL DEFAULT NULL COMMENT '指数收益率',
+  `tracking_error` decimal(10, 4) NULL DEFAULT NULL COMMENT '跟踪误差',
+  `information_ratio` decimal(10, 4) NULL DEFAULT NULL COMMENT '信息比率',
+  `beta` decimal(10, 4) NULL DEFAULT NULL COMMENT '贝塔系数',
+  `alpha` decimal(10, 4) NULL DEFAULT NULL COMMENT '阿尔法系数',
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '正常' COMMENT '状态：正常、预警、异常',
+  `alert_message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '预警信息',
+  `created_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_portfolio_code`(`portfolio_code`) USING BTREE,
+  INDEX `idx_monitor_date`(`monitor_date`) USING BTREE,
+  INDEX `idx_status`(`status`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '指数组合监控表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of a2_index_monitor
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for a2_index_portfolio
+-- ----------------------------
+DROP TABLE IF EXISTS `a2_index_portfolio`;
+CREATE TABLE `a2_index_portfolio`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `portfolio_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '组合代码',
+  `portfolio_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '组合名称',
+  `portfolio_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '组合类型：指数型',
+  `index_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '指数代码',
+  `index_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '指数名称',
+  `risk_level` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '风险等级：低风险、中风险、高风险',
+  `target_return` decimal(10, 4) NULL DEFAULT NULL COMMENT '目标收益率',
+  `tracking_error` decimal(10, 4) NULL DEFAULT NULL COMMENT '跟踪误差',
+  `strategy_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '策略代码',
+  `asset_allocation` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '资产配置JSON',
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '草稿' COMMENT '状态：草稿、活跃、暂停',
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '组合描述',
+  `created_by` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建人',
+  `created_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+  `updated_by` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
+  `updated_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `portfolio_code`(`portfolio_code`) USING BTREE,
+  INDEX `idx_portfolio_code`(`portfolio_code`) USING BTREE,
+  INDEX `idx_index_code`(`index_code`) USING BTREE,
+  INDEX `idx_status`(`status`) USING BTREE,
+  INDEX `idx_created_time`(`created_time`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '指数组合表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
